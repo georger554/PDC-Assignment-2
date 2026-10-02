@@ -3,3 +3,7 @@ dist/
 nbproject/private/
 *.class
 .DS_Store
+db/derby.log
+db/derby.properties
+db/sample/
+derby.log
