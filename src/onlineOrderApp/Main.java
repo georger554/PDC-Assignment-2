@@ -13,6 +13,8 @@ import java.time.LocalDate;
  */
 public class Main {
     public static void main(String[] args) {
+        DBManager.initializeDatabase(); //makes sure all tables exist before anything else runs
+        DatabaseSeeder.seedMenuIfEmpty();
         AuthService authService = new AuthService();
         MenuService menuService = new MenuService();
 
