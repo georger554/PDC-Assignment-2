@@ -312,8 +312,8 @@ public class Main {
                         }
                     }
 
-                    menuService.addItem(id, name, description, category, price);
-                    System.out.println("Menu item added successfully.");
+                    boolean added = menuService.addItem(id, name, description, category, price);
+                    System.out.println(added ? "Menu item added successfully" : "Could not add item (ID may exist already )");
 
                 }
                 else if (menuChoice.equals("2")){ //else if they watn to remove
@@ -328,8 +328,8 @@ public class Main {
                             System.out.print("Please enter a valid numeric ID: ");
                         }
                     }
-                    menuService.removeItem(id);
-                    System.out.println("Menu item removed successfully.");
+                    boolean removed = menuService.removeItem(id);
+                    System.out.println(removed ? "Menu item removed successfully." : "could not remove item (not found or its part of an existing order)");
 
                 } 
                 else {
