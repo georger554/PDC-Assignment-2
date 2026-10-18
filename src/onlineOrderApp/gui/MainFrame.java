@@ -29,7 +29,8 @@ public class MainFrame extends JFrame {
         setSize(900, 600);
         setLocationRelativeTo(null); //centres the window
         add(cards);
-        // later: cards.add(new LoginPanel(this), "login"); and more
+        cards.add(new LoginPanel(this), "login");
+        showScreen("login");
     }
 
     public void showScreen(String name) {
