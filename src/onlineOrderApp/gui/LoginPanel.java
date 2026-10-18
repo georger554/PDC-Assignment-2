@@ -138,8 +138,9 @@ public class LoginPanel extends javax.swing.JPanel {
         passwordField.setText("");
 
         if (user instanceof Admin) {
-            frame.showScreen("admin");
-        } else {
+            frame.openAdminScreen();
+        }
+        else{
             frame.openCustomerScreen();
         }
     }//GEN-LAST:event_loginButtonActionPerformed

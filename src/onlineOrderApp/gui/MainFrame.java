@@ -43,8 +43,10 @@ public class MainFrame extends JFrame {
 
         customerPanel = new CustomerPanel(this);
         cards.add(customerPanel, "customer");
-
         showScreen("login");
+        
+        adminPanel = new AdminPanel(this);
+        cards.add(adminPanel, "admin"); // admin screen fills the window
     }
 
     public void showScreen(String name) {
@@ -53,6 +55,11 @@ public class MainFrame extends JFrame {
     public void openCustomerScreen() {
         customerPanel.onShow();
         showScreen("customer");
+    }
+    private AdminPanel adminPanel;
+    public void openAdminScreen() {
+        adminPanel.onShow(); //loads orders, menu and stats before showing the screen
+        showScreen("admin");
     }
 
     public AuthService getAuthService() { return authService; }
