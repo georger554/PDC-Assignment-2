@@ -23,6 +23,7 @@ public class MainFrame extends JFrame {
     private final OrderService orderService = new OrderService();
     private User currentUser; //null when nobody is logged in
     
+    private CustomerPanel customerPanel;
     // Generated with assistance from Claude
     private void addCentred(JPanel panel, String name) { //wraps a screen so it stays centred when the window resizes
         JPanel wrapper = new JPanel(new java.awt.GridBagLayout());
@@ -34,15 +35,24 @@ public class MainFrame extends JFrame {
         setTitle("Food Ordering System");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(900, 600);
-        setLocationRelativeTo(null); //centres the window
+        setLocationRelativeTo(null);
         add(cards);
+
         addCentred(new LoginPanel(this), "login");
         addCentred(new RegisterPanel(this), "register");
+
+        customerPanel = new CustomerPanel(this);
+        cards.add(customerPanel, "customer");
+
         showScreen("login");
     }
 
     public void showScreen(String name) {
         cardLayout.show(cards, name);
+    }
+    public void openCustomerScreen() {
+        customerPanel.onShow();
+        showScreen("customer");
     }
 
     public AuthService getAuthService() { return authService; }

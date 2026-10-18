@@ -140,7 +140,7 @@ public class LoginPanel extends javax.swing.JPanel {
         if (user instanceof Admin) {
             frame.showScreen("admin");
         } else {
-            frame.showScreen("customer");
+            frame.openCustomerScreen();
         }
     }//GEN-LAST:event_loginButtonActionPerformed
 
