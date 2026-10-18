@@ -1,2 +1,0 @@
-ADMIN|g|g|g@
-CUSTOMER|b|b|b@|1|1

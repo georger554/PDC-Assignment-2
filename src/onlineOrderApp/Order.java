@@ -5,6 +5,7 @@
 package onlineOrderApp;
 import java.util.List;
 import java.time.LocalDate;
+import java.util.ArrayList;
 /**
  *
  * @author georgerobinson
@@ -21,7 +22,7 @@ public class Order {
     public Order(int id, Customer customer, Cart cart){ //setters for orders
         this.id = id;
         this.customer = customer;
-        this.items = cart.getItems();
+        this.items = new ArrayList<>(cart.getItems());
         this.totalAmount = cart.getTotal();
         this.status = OrderStatus.PENDING;
         this.orderTime = LocalDate.now();

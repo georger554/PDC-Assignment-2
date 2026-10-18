@@ -18,14 +18,9 @@ public class Main {
         AuthService authService = new AuthService();
         MenuService menuService = new MenuService();
 
-        List<Customer> customers = new ArrayList<>();
-        for (User user : authService.getUsers()) {
-            if (user instanceof Customer) {
-                customers.add((Customer) user);
-            }
-        }
 
-        OrderService orderService = new OrderService(customers, menuService.getAllItems());
+
+        OrderService orderService = new OrderService();
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Welcome to the Food Ordering System"); //welcome message for start of program
@@ -61,8 +56,11 @@ public class Main {
 
             } 
             else if (choice.equals("2")) { //if they chose to make a new account
-                System.out.print("Register as (CUSTOMER/ADMIN): "); //ask if they want to register as a custoemr or administrator
-                String type = scanner.nextLine().toUpperCase();
+                String type = "";
+                while (!type.equals("CUSTOMER") && !type.equals("ADMIN")) {
+                    System.out.print("Register as (CUSTOMER/ADMIN): ");
+                    type = scanner.nextLine().toUpperCase();
+                }
                 System.out.print("Username: "); //ask for new username and passwor 
                 String username = scanner.nextLine();
                 System.out.print("Password: ");
@@ -134,8 +132,13 @@ public class Main {
                             if (selected != null){ //if an item id is selected (ie not null)
                                 System.out.print("Quantity: ");
                                 int quantity = Integer.parseInt(scanner.nextLine());
-                                cart.addItem(selected, quantity); //get quantity 
-                                System.out.println("Added to cart.");
+                                if (quantity < 1){
+                                    System.out.println("Quantity must be at least 1");
+                                } 
+                                else{
+                                    cart.addItem(selected, quantity);
+                                    System.out.println("Added to cart.");
+                                }
                             } 
                             else {
                                 System.out.println("Item not found."); //else item doesnt exist
@@ -159,7 +162,11 @@ public class Main {
                 }
             } 
             else if (choice.equals("3")) { //if thhe user wants to pay
-                System.out.print("Enter card number (16 numbers): ");
+                if (cart.getItems().isEmpty()) { 
+                    System.out.println("Your cart is empty, add some items first."); 
+                    continue;
+                } 
+               System.out.print("Enter card number (16 numbers): ");
                 String cardNumber = scanner.nextLine();
                 while (cardNumber.length() != 16) { //if entry is not 16 digits 
                     System.out.print("Card number must be exactly 16 digits. Try again: "); //asl again
@@ -232,7 +239,7 @@ public class Main {
                             System.out.println("  Ready for pickup/delivery now."); //print line if ready
                         }
                         else {
-                            int wait = orderService.getEstimatedWaitMinutes(order);
+                            int wait = orderService.getEstimatedWaitMinutes();
                             System.out.println("  Estimated wait until ready: " + wait + " minutes"); //else if not ready or delivered, print estimated waiting time
                         }
                         System.out.println("  Total: $" + order.getTotalAmount()); //print total 
@@ -252,9 +259,13 @@ public class Main {
                 System.out.print("Are you sure you want to delete your account? (yes/no): ");
                 String confirm = scanner.nextLine(); //confirm
                 if (confirm.equalsIgnoreCase("yes")) {
-                    authService.deleteUser(customer.getUsername());
-                    System.out.println("Account deleted."); //if yes delete
-                    loggedIn = false; //log out
+                    if (authService.deleteUser(customer.getUsername())) {
+                        System.out.println("Account deleted.");
+                        loggedIn = false;
+                    }
+                    else{
+                        System.out.println("Could not delete account as accounts with past orders must be kept for order records");
+                    }
                 }
             } 
             else if (choice.equals("7")) { //if wants to log out 
@@ -308,8 +319,14 @@ public class Main {
                     while (!validPrice) {
                         try {
                             price = Double.parseDouble(scanner.nextLine());
-                            validPrice = true;
-                        } catch (NumberFormatException e) {
+                            if (price < 0) {
+                                System.out.print("Price cant be negative");
+                            }
+                            else {
+                                validPrice = true;
+                            }
+                        }
+                        catch (NumberFormatException e) {
                             System.out.print("Please enter a valid price (numbers only): ");
                         }
                     }
@@ -376,9 +393,13 @@ public class Main {
                 System.out.print("Are you sure you want to delete your account? (yes/no): ");
                 String confirm = scanner.nextLine();
                 if (confirm.equalsIgnoreCase("yes")) {
-                    authService.deleteUser(admin.getUsername()); //delete and then log out
-                    System.out.println("Account deleted.");
-                    loggedIn = false;
+                    if (authService.deleteUser(admin.getUsername())) {
+                        System.out.println("Account deleted.");
+                        loggedIn = false;
+                    }
+                    else{
+                        System.out.println("Could not delete account");
+                    }
                 }
             } 
             else if (choice.equals("6")) { //if the user wants to log out

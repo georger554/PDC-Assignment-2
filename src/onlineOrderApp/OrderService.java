@@ -9,87 +9,99 @@ import java.util.ArrayList;
  *
  * @author georgerobinson
  */
-public class OrderService {
-    private List<Order> orders;
-    private OrderFileHandler fileHandler;
-    private int nextOrderId;
+public class OrderService{
+    private OrderDAO orderDAO; 
+    private UserDAO userDAO; 
+    private MenuDAO menuDAO;
 
-    public OrderService(List<Customer> customers, List<MenuItem> menuItems) {
-        fileHandler = new OrderFileHandler();
-        orders = fileHandler.loadOrders(customers, menuItems);
-        
-        int maxId = 0; //set max id as zero 
-        for (int i = 0; i < orders.size(); i++) { // for the amount of orders 
-            if (orders.get(i).getId() > maxId) { //if the current order id is greater than the max id
-                maxId = orders.get(i).getId(); //set the maxid as current order id
+    public OrderService(){ //constructor
+        orderDAO = new OrderDAO(); 
+        userDAO = new UserDAO(); 
+        menuDAO = new MenuDAO();
+    }
+
+    public List<Order> getAllOrders() { //gets all orders from the database
+        List<Customer> customers = new ArrayList<>(); //list to store customers
+
+        for (User user : userDAO.getAllUsers()) { //loops through all users from db
+            if (user instanceof Customer) { //if user is a customer
+                customers.add((Customer) user); //makes the user a Customer and adds it to list
             }
         }
-        nextOrderId = maxId + 1; //next order id will be max+1
+
+        return orderDAO.getAllOrders(customers, menuDAO.getAllMenuItems()); //gets all orders using the customers and menu items
     }
 
-    public Order placeOrder(Customer customer, Cart cart, Payment payment) { 
-        if(payment.isSuccess()){ //if the payment was set to success
-            Order order = new Order(nextOrderId, customer, cart); //create a new order using next order id, customer, and cart 
-                orders.add(order);//add order to orders
-                nextOrderId+=1; //increment next order id
-                fileHandler.saveOrders(orders); //save
-                return order;
+    public Order placeOrder(Customer customer, Cart cart, Payment payment) { //creates and saves a new order
+        if (!payment.isSuccess()) { //payment already checked itself when it was created
+            return null; //returns null if the payment was unsuccessful
         }
-        else{ // if the payment failed
-            return null; //return nothing
+
+        int id = orderDAO.getNextOrderId(); // gets the next available order id
+        Order order = new Order(id, customer, cart); //creates a new order
+
+        if (orderDAO.insertOrder(order)) { //tries to save the order to the db
+            return order; //returns the order if it was successful
         }
+
+        return null; //returns null if not
     }
 
-    public boolean updateOrderStatus(int orderId, OrderStatus newStatus) {
-        for (int i = 0; i < orders.size(); i++) { //for the amount of orders 
-            if (orders.get(i).getId() == orderId) { //once found desired order
-                orders.get(i).updateStatus(newStatus); //set the status
-                fileHandler.saveOrders(orders);
-                return true;
+    public boolean updateOrderStatus(int orderId, OrderStatus newStatus) { //updates status of order
+        Order order = null; 
+
+        for (Order currentOrder : getAllOrders()) { //loops through all orders
+            if (currentOrder.getId() == orderId) { //checks if the order id matches
+                order = currentOrder; //stores the matching order
+                break; 
             }
         }
-        return false;
+
+        if (order == null) { //chec if no matching order was found
+            return false; //returns false
+        }
+
+        order.updateStatus(newStatus); //updates the order status and handles the delivery time rule
+
+        return orderDAO.updateOrderStatus(orderId, order.getStatus(), order.getDeliveryTime()); //saves the updated status and delivery time to the db
     }
 
-    public List<Order> getOrdersByCustomer(Customer customer) {
-        List<Order> result = new ArrayList<>();
-        for (Order order : orders) { //for the amount of orders in orders
-            if (order.getCustomer().getUsername().equals(customer.getUsername())) { //if the username of cust equals username of order
-                result.add(order); //add order
+    public List<Order> getOrdersByCustomer(Customer customer) { //gets all orders belonging to a customer
+        List<Order> customerOrders = new ArrayList<>(); //creates a list to store the customers orders
+
+        for (Order order : getAllOrders()) { //loops through all orders
+            if (order.getCustomer().getUsername().equals(customer.getUsername())) { //checks if the order belongs to the customer
+                customerOrders.add(order); //adds the order to the list
             }
         }
-        return result;
+
+        return customerOrders; //returns the customers orders
     }
 
-    public List<Order> getAllOrders() {
-        return orders;
-    }
+    public double getTotalRevenue() { //calculates the total from all orders
+        double total = 0; //starts the total revenue at 0
 
-    public double getTotalRevenue() {
-        double total = 0;
-        for(Order order : orders){ //for the amount of orders
-             total += order.getTotalAmount(); //add total amount to overall total
+        for (Order order : getAllOrders()) { //loops through all orders
+            total += order.getTotalAmount(); //adds each orders total amount to the revenue
         }
-        return total;
+
+        return total; //returns the total revenue
     }
 
-    public int getOrderCountByStatus(OrderStatus status) {
-        int count = 0; //set count to zero
-        for(Order order : orders){ //for the amount of orders
-            if (order.getStatus() == status){ //if the order status equals status
-                count++; //increment count od orders
+    public int getOrderCountByStatus(OrderStatus status) { //counts how many orders have a specific status
+        int count = 0; //starts the order count at 0
+
+        for (Order order : getAllOrders()) { //loops through all orders
+            if (order.getStatus() == status) { //checks if the orders status matches the given status
+                count++; //increments the ocount
             }
         }
-        return count;
+
+        return count; //returns the number of orders with the given status
     }
-    
-    public int getEstimatedWaitMinutes(Order order) {
-        int count = 0; //set count to zero
-        for (Order o : orders) { //for the amount of orders 
-            if (o.getStatus() == OrderStatus.PENDING || o.getStatus() == OrderStatus.PREPARING) { //if the order has a status of pending or preparing
-                count++; //increment count
-            }
-        }
-        return 5 + (count * 5); //each order adds five minutes to wait time. so 5* count and an additional 5 mins for base wait time.
+
+    public int getEstimatedWaitMinutes() { //estimates the wait for an order that is not ready yet
+        int ahead = getOrderCountByStatus(OrderStatus.PENDING) + getOrderCountByStatus(OrderStatus.PREPARING); //orders still being made
+        return 5 + ahead * 5; //5 minutes base + 5 for each order still in progress
     }
 }
