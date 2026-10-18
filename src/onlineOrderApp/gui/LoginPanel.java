@@ -18,6 +18,12 @@ public class LoginPanel extends javax.swing.JPanel {
         initComponents();
         usernameField.setText(""); //clears the placeholder text from the designer
         passwordField.setText("");
+        // Generated with assistance from Claude
+        java.awt.Dimension fieldSize = new java.awt.Dimension(220, 28); //fixed size so the fields never shrink or grow with the text
+        usernameField.setPreferredSize(fieldSize);
+        usernameField.setMinimumSize(fieldSize);
+        passwordField.setPreferredSize(fieldSize);
+        passwordField.setMinimumSize(fieldSize);
     }
 
     /**
@@ -41,8 +47,10 @@ public class LoginPanel extends javax.swing.JPanel {
         titleLabel.setFont(new java.awt.Font("Helvetica Neue", 1, 18)); // NOI18N
         titleLabel.setText("Food Ordering System");
 
+        usernameField.setColumns(10);
         usernameField.setText("Username");
 
+        passwordField.setColumns(10);
         passwordField.setText("jPasswordField1");
         passwordField.addActionListener(this::passwordFieldActionPerformed);
 
@@ -80,10 +88,10 @@ public class LoginPanel extends javax.swing.JPanel {
                             .addComponent(jLabel2))
                         .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(passwordField)
+                            .addComponent(usernameField)
                             .addComponent(loginButton, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(133, Short.MAX_VALUE))
+                .addGap(99, 99, 99))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
