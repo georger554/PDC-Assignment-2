@@ -46,8 +46,4 @@ public class AuthService { //logging in/registering/deleting accounts
     public boolean deleteUser(String username) {
         return userDAO.deleteUser(username); //recieve username to be deleted and call delete user method
     }
-
-    public List<User> getUsers(){
-        return userDAO.getAllUsers(); //return list of all users
-    }
 }

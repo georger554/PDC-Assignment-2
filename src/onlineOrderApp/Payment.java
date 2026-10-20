@@ -32,11 +32,9 @@ public class Payment {
         }
         else if (cardNumber == null || cardNumber.isEmpty() || cvc == null || cvc.isEmpty()){ //if any or all of the fields are empty
             success = false; //set payment to fail
-            System.out.println("Payment declined - it looks like you have not entered your card number, cvc and/or expiry. Please try again."); //tell user to reenter
-        }
+         }
         else{
             success = false; //else the user must have entered false or not enough charecters or expired card
-            System.out.println("Payment declined - please make sure you enter the correct length of numbers for card number (16) and cvc (3). Also make sure that your card is not expired.");//tell user to try again
         }
         return success;
     }
